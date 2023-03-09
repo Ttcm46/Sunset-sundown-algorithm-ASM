@@ -3,12 +3,25 @@
 
 #include <iostream>
 extern "C" int Adder(int a, int b);
+extern "C" void t_fpu(float* x, float *y);
+
+float addFloat(float x, float z) {
+    x = x + z;
+    return  x;
+}
 int main()
 {
     std::cout << "Hello World!\n";
 
     int x = Adder(5, 2);
     x = 0;
+    float a = 2.5;
+    float b = 3;
+    float y = addFloat(a, b);
+    float * n = &a;
+    float* m = &b;
+    t_fpu(&a, &b);
+    a = cos(b);
 }
 
 // Run program: Ctrl + F5 or Debug > Start Without Debugging menu
