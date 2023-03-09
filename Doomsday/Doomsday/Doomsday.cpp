@@ -22,6 +22,7 @@ int main()
     float* m = &b;
     t_fpu(&a, &b);
     a = cos(b);
+    b = cos(a);
 }
 
 // Run program: Ctrl + F5 or Debug > Start Without Debugging menu
