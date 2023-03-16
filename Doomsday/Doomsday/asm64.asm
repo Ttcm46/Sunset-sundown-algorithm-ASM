@@ -1,4 +1,5 @@
 ;.model flat, stdcall
+;no se usa ninguna variable global porque no encontramos la manera de que fueran aceptadas
 .code
 ALIGN 16
 Adder proc
@@ -19,44 +20,48 @@ t_fpu proc
 	
 t_fpu endp
 
-n1 proc
+nf1 proc
 	mov rax,rcx			;mover dato a rax
 	mov rbx,0275d
-	mul rbx		;multiplicar por 275
+	mul rbx				;multiplicar por 275
 	mov rbx,09d
-	div	rbx			;dividir entre 9
+	div	rbx				;dividir entre 9
 	ret					;valor de regreso en rax
-n1 endp	
+nf1 endp	
 
-n2 proc 
-	mov rax,rcx
-	add	rax,09d
-	mov rbx,012d
-	div	rbx
-	ret
-n2 endp
+nf2 proc 
+	xor rax,rax		;limpiar rax
+	mov eax,ecx		;parametro 1  a eax
+	add	eax,9		;eax+9
+	cdq				;si no se convuerte a qword el dword, la cosa crashea npi
+	mov ebx,0Ch		;ebx = 12
+	idiv ebx		;eax /12
+	ret			
+nf2 endp
 
-n3 proc
+nf3 proc
 	mov eax,dword ptr[rcx]	;esta usa punteros pq usamos un mismo valor varias veces, enntonces para copiarlo directamente de la dir
-	mov rbx,04d
-	div rbx
-	mov rbx,04d
-	mul	rbx
-	mov rbx,rax
-	mov eax,dword ptr[rcx]
-	sub rax,rbx
-	add rax,02d
-	mov rbx,03d
-	div rbx
-	inc rax
+	mov rbx,04d				;rbx = 4
+	cdq						;esto para que no crashee la cosa cuando divida, esta duplica el espacio que se acoupa en el registro 
+	div rbx					;div rax /4
+	mul	rbx					;mul rax solo el entero por 4
+	mov rbx,rax				;pasamos a rbx lo que hay en rax 
+	mov eax,dword ptr[rcx]	;anho a rax
+	sub rax,rbx				;anho - rbx
+	add rax,02d				;sumamos 2 a rax
+	mov rbx,03d				;rbx = 3
+	div rbx					;rax / 3
+	inc rax					;rax +1
 	ret
-n3 endp	
+nf3 endp	
 
 nfin proc
-	mov rax,rdx
+	mov eax,edx
 	mul r8
-	sub rax,rcx
-	add rax,r10
-	sub rax,030d
+	sub eax,ecx
+	mov rbx,r9
+	add eax,ebx				
+	sub eax,030d			;-30
+	ret						;regreso, muy importante poner si no la cosa se traba, llevo 1 h intentando saber porque chrasheaba esta funcion y todo porque se me olvido esta linea :(
 nfin endp
 end	

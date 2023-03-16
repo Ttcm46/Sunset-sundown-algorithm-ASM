@@ -4,34 +4,27 @@
 #include <iostream>
 extern "C" int Adder(int a, int b);
 extern "C" void t_fpu(float* x, float *y);
+extern "C" int nf1(int m);
+extern "C" int nf2(int m);
+extern "C" int nf3(int* y);
+extern "C" int nfin(int n1, int n2, int n3,int dia);
 
-float addFloat(float x, float z) {
-    x = x + z;
-    return  x;
+int enes(int dia, int mes, int anho) {
+    int n1 = nf1(mes);
+    int n2 = nf2(mes);
+    int n3 = nf3(&anho);
+    int nf = nfin(n1, n2, n3, dia);
+    return nf;
 }
+
+int test(int x) {
+    return x - 30;
+}
+
 int main()
 {
     std::cout << "Hello World!\n";
-
-    int x = Adder(5, 2);
-    x = 0;
-    float a = 2.5;
-    float b = 3;
-    float y = addFloat(a, b);
-    float * n = &a;
-    float* m = &b;
-    t_fpu(&a, &b);
-    a = cos(b);
-    b = cos(a);
+    int y = enes(31, 12, 2001);
+    int x = 2;
+    //int y = test(x);
 }
-
-// Run program: Ctrl + F5 or Debug > Start Without Debugging menu
-// Debug program: F5 or Debug > Start Debugging menu
-
-// Tips for Getting Started: 
-//   1. Use the Solution Explorer window to add/manage files
-//   2. Use the Team Explorer window to connect to source control
-//   3. Use the Output window to see build output and other messages
-//   4. Use the Error List window to view errors
-//   5. Go to Project > Add New Item to create new code files, or Project > Add Existing Item to add existing code files to the project
-//   6. In the future, to open this project again, go to File > Open > Project and select the .sln file
