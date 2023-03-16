@@ -58,7 +58,9 @@ nf3 endp
 nfin proc
 	mov eax,edx
 	mul r8
-	sub eax,ecx
+	mov ebx,eax
+	mov eax,ecx
+	sub eax,ebx
 	mov rbx,r9
 	add eax,ebx				
 	sub eax,030d			;-30
