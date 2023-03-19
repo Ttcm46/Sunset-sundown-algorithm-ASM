@@ -2,11 +2,6 @@
 ;no se usa ninguna variable global porque no encontramos la manera de que fueran aceptadas
 .code
 ALIGN 16
-Adder proc
-	mov rax,rcx
-	add eax,edx
-	ret
-Adder endp
 
 t_fpu proc
 	finit										;iniciacion de fpu(no se ocupa, solo limpia los registros, pero por precaucion usar)
@@ -56,14 +51,32 @@ nf3 proc
 nf3 endp	
 
 nfin proc
-	mov eax,edx
-	mul r8
-	mov ebx,eax
-	mov eax,ecx
-	sub eax,ebx
-	mov rbx,r9
-	add eax,ebx				
+	mov eax,edx				;mov parametro 2 a eax
+	mul r8					;mul eax por par 3 (r8)
+	mov ebx,eax				;movemos  a ebx el con de eax
+	mov eax,ecx				;movemos a eax el parametro 1
+	sub eax,ebx				;restamos eax -ebx
+	mov rbx,r9				;movemos a rbx el parametro 4
+	add eax,ebx				;sumamos eax + ebx
 	sub eax,030d			;-30
 	ret						;regreso, muy importante poner si no la cosa se traba, llevo 1 h intentando saber porque chrasheaba esta funcion y todo porque se me olvido esta linea :(
 nfin endp
+
+lngHourP proc
+	mov eax,015d
+	cvtsi2ss	xmm1,rax
+	movss	xmm0,dword ptr[rdx]	
+	divss	xmm0,xmm1
+	cmp r8,01d
+	jz sunrise
+	sunset:
+
+	;hacer ambos casos
+
+	ret
+	sunrise:
+	ret
+lngHourP endp
+
+
 end	
