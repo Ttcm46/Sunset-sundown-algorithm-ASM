@@ -67,14 +67,25 @@ lngHourP proc
 	cvtsi2ss	xmm1,rax
 	movss	xmm0,dword ptr[rdx]	
 	divss	xmm0,xmm1
-	cmp r8,01d
-	jz sunrise
+	cmp		r8,01d
+	jz		sunrise
+
 	sunset:
+	mov		eax,018d
+	jmp		here
 
-	;hacer ambos casos
-
-	ret
 	sunrise:
+	mov		eax,06d
+
+	here:
+	cvtsi2ss xmm1,rax
+	subss	 xmm0,xmm0	
+	mov		 eax,024d
+	cvtsi2ss xmm1,rax
+	divss	 xmm0,xmm1
+	cvtsi2ss xmm1,rcx
+	addss	 xmm0,xmm1
+	movss	 dword ptr[r9],xmm1	
 	ret
 lngHourP endp
 

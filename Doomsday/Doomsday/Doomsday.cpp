@@ -29,6 +29,9 @@ int main()
     std::cout << "Hello World!\n";
     float a = 5.6;
     float b = 6.5;
+    float x = -83.8888;
+    float t;
+    lngHourP(200, &x, true, &t);
 
     test(a,b);
     //int y = test(x);
