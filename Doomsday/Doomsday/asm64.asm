@@ -1,16 +1,46 @@
-;.model flat, stdcall
-;no se usa ninguna variable global porque no encontramos la manera de que fueran aceptadas
+;no se usa ninguna variable global porque no encontramos la manera de que fueran aceptadas, todo esta en un contexto "global" de este archivo
+
+
+;__________Info importante para leer la documentacion_______________
+		;  x  -''  y     significa a x le asignamos y, usariamos flechita pero el compilador no leagradan las flechitas en los comentarios
+		;  x  -''  *y 	 significa que a x le asignamos el contenido de lo que apunta y
+.data	
+;aqui se declaran constantes de numeros flotantes con valores despues de el punto decimal, el compilador no deja hacerlos en linea como con words enteros eg 8
+noventa real4 90.0				;TODO: buscar todos los 90 y reemplazarlos con esta const
+tresSesenta real4 360.0
+smeanA real4 0.9856
+smeanB real4 3.289
+
+stLongA real4 1.916
+stLongB real4 0.020
+stLongC real4 282.634
+
+sRA real4 0.91764
+sDA real4	0.39782
+
+lmtA real4 0.06571
+lmtB real4 6.622
+
+;variable temporal para algunos procesos 
+tmps real4 0.0
+tmpsB real4  0.0
+tmpsC real4  0.0
+;variable local para almacenar direcciones de memmoria para asaiganr a direfentes variables
+tmpPtr dword 0
+tmpPtr2 dword 0
+tmpNum dword 0
 .code
 ALIGN 16
 
 t_fpu proc
-	finit										;iniciacion de fpu(no se ocupa, solo limpia los registros, pero por precaucion usar)
-	movss xmm0,dword ptr[rcx]					;mover un valor Scalar-Single precision floating point unit con dir en rcx a el registro de 128bits para la fpu(xmm0); el dword ptr es para apuntar a el contenido, se supone que la mem ya esta reservada pero la cosa no compila si no se ponen  
-	addss	xmm0	, dword ptr [rdx]			;sumar un FPUnit con otro apuntado por la direccion contenida en rdx
-	movss dword ptr [rcx],xmm0					;mover a la direccion contenida en rcx el resultado de la suma, este se encuentra en xmm0(128bits)
-	jmp hola
-
-	hola:
+	finit	
+	movss xmm0,dword ptr[rcx]
+	movss	tmps,xmm0
+	fld	tmps
+	fsin	
+	fst tmps
+	movss xmm0,tmps
+	movss dword ptr[rcx],xmm0
 	ret
 	
 t_fpu endp
@@ -62,7 +92,7 @@ nfin proc
 	ret						;regreso, muy importante poner si no la cosa se traba, llevo 1 h intentando saber porque chrasheaba esta funcion y todo porque se me olvido esta linea :(
 nfin endp
 
-lngHourP proc
+lngHourP proc				;TODO: comentar/documentar
 	mov eax,015d
 	cvtsi2ss	xmm1,rax
 	movss	xmm0,dword ptr[rdx]	
@@ -79,15 +109,152 @@ lngHourP proc
 
 	here:
 	cvtsi2ss xmm1,rax
-	subss	 xmm0,xmm0	
+	subss	 xmm1,xmm0	
+	movss	 xmm0,xmm1	
 	mov		 eax,024d
 	cvtsi2ss xmm1,rax
 	divss	 xmm0,xmm1
 	cvtsi2ss xmm1,rcx
 	addss	 xmm0,xmm1
-	movss	 dword ptr[r9],xmm1	
+	movss	 dword ptr[r9],xmm0	
 	ret
 lngHourP endp
 
+anomPromSol proc 
+	movss		xmm1,smeanA
+	movss		xmm0, dword ptr [rcx]
+	mulss		xmm0,xmm1
+	movss		xmm1,smeanB
+	subss		xmm0,xmm1
+	movss		dword ptr [rdx],xmm0
+	ret
+anomPromSol endp
+
+suntLong proc			;L = M + (1.916 * sin(M)) + (0.020 * sin(2 * M)) + 282.634				TODO:optimizar		TEST:
+	mov tmpPtr,ecx		;salvamos direccion de puntero de M
+	mov ecx,tmpPtr		;movemos a ecx la direccion
+	;proceso de (1.916 * sin(M))
+	movss xmm0,dword ptr [rcx]		;movemos a ammo el contenido de ecx
+	movss tmps,xmm0					;movemos a tmps el cpntenido de xmm0, estos movimientos porque no podemos mover directamente a tmps
+	finit							;inicializacion/purga de fpu para que este en 0's
+	fld tmps						;push a stack de fpu de tmps
+	fsin							;sin
+	fst	tmps						;guardado de resultado en tmps
+	movss xmm0,tmps					;movemos el resultado a xmm0
+	movss xmm1,stLongA				;xmm1 -'' stlongA
+	mulss xmm0,xmm1					;xmm0 * xmm1
+	movss xmm2,xmm0					;xmm2 -'' xmm0			resultado de (1.916 * sin(M)) en xmm2
+	;(0.020 * sin(2 * M))
+	finit 							;inicializacion/purga de fpu para que este en 0's
+	movss xmm0,dword ptr [rcx]		;xmm0 -'' *rcx
+	mov rax,02d						;rax -'' 2
+	cvtsi2ss	xmm1,rax			;xmm1 -'' rax pero en un formato de signle point precision scalar floating point
+	mulss xmm0,xmm1					;xmm0 * xmm1		M*2
+	movss tmps,xmm0					;tmps -'' xmm0		valor se guada en tmps				CHECK: redundante/paso extra innecesario?
+	fld tmps						;carga de valor a fpu
+	fsin							;sin de valor
+	fst	tmps						;guardamos valor a tmps
+	movss xmm0,stLongB				;xmm0 -'' stLongB
+	movss xmm1,tmps					;xmm1 -''  tmps
+	mulss xmm0,xmm1					;xmm0 * xmm1
+	;(1.916 * sin(M)) + (0.020 * sin(2 * M))			sumas
+	addss xmm0,xmm2					;xmm0 + xmm2
+	;+m
+	movss xmm1,dword ptr [rcx]		;xmm1 -'' *rcx
+	;+stLongC					
+	movss xmm2,stLongC
+	;en este momento lo contenido en los registros xmm es:
+	;											xmm0:(1.916 * sin(M)) + (0.020 * sin(2 * M))
+	;											xmm1:M
+	;											xmm2:StlongC(282.634)
+	addss xmm0,xmm1
+	addss xmm0,xmm2
+	movss dword ptr [rcx],xmm0
+	ret					;devolvemos en el puntero que nos dieron el resultado, sobreescribimos M
+suntLong endp
+
+sunRAsc proc								; TEST:
+	mov tmpPtr,ecx
+	movss xmm0,dword ptr [rcx]
+	movss tmps,xmm0
+	finit
+	fld tmps
+	fsin
+	fld sRA
+	fmul
+	fpatan
+	comparaciones:
+	fld tresSesenta
+	fcom						;valor debe de estar en [0,360]
+	fstsw  ax
+	and    eax, 0100011100000000B ;solo banderas de condicion
+	cmp    eax, 0000000000000000B ; st0(360) > val 
+    je     smaller
+	cmp    eax, 0000000100000000B ;is 360 < source 
+    je     greater
+
+	greater:			
+	fsub	st(0),st(1)			;valor -360 para meterlo en el rango de[0,360]
+	jmp comparaciones
+	smaller:
+	fst st(0)
+	fldz
+	fcom
+	fstsw  ax
+	and    eax, 0100011100000000B ;solo banderas de condicion
+	cmp    eax, 0000000100000000B ;is 0 < source ?
+    je done
+	cmp    eax, 0000000000000000B ; st0(0) > val ?
+	fst st(0)
+	fld tresSesenta
+	fadd
+	jmp comparaciones
+	done:
+	fst st(0)
+	fst tmpsB
+	mov rcx,tmpPtr
+	movss
+	ret
+sunRAsc endp
+
+sunrAsctoQuad proc
+	 
+	ret 
+sunrAsctoQuad endp
+
+rAsctoT proc
+
+	ret
+rAsctoT  endp
+
+sunsDeclination proc
+	
+	ret
+sunsDeclination endp
+
+sunLhourAng proc
+	
+	ret
+sunLhourAng endp
+
+hToHour proc
+	
+	ret
+hToHour endp
+
+localMeanT proc
+
+	ret
+localMeanT endp
+
+utcAdj proc
+
+	ret
+utcAdj endp
+
+locUtcAdj proc
+
+	ret
+locUtcAdj endp
 
 end	
