@@ -2,12 +2,12 @@
 //
 
 #include <iostream>
-extern "C" void t_fpu(float* x, float *y);
+extern "C" void t_fpu(float* x);
 extern "C" int nf1(int m);
 extern "C" int nf2(int m);
 extern "C" int nf3(int* y);
 extern "C" int nfin(int n1, int n2, int n3,int dia);
-//union de todas las funciones para c
+//union de todas las funciones para calc dia de anho
 int calcularDiaDelAno(int dia, int mes, int anho) {
     int n1 = nf1(mes);
     int n2 = nf2(mes);
@@ -18,21 +18,40 @@ int calcularDiaDelAno(int dia, int mes, int anho) {
 
 // manda 1 true para hora de salida de sol, 0 para puesta
 extern "C" void lngHourP(int n, float* longi, bool sunSet, float* time);
+//calcula la anomalia promedio del sol
+extern "C" void anomPromSol(float* entrada, float* salida);
+extern "C" void suntLong(float* M,float * salid);
+extern "C" void sunRAsc(float* m,float *RA);
 
-void test(float x, float y) {
-    int z = 22;
-    x = float(z);
+
+
+
+
+void sunsetSunrise(int dia, int mes, int anho, float lat, float longi, int zenith, bool sunSet) {
+    int n = calcularDiaDelAno(dia, mes, anho);
+
+
 }
+
+void test(float lngHour, float N) {
+    float t =sin(N);
+    float z= 0.9856;
+    float a = 3.289;
+}
+    
 
 int main()
 {
     std::cout << "Hello World!\n";
-    float a = 5.6;
-    float b = 6.5;
-    float x = -83.8888;
-    float t;
-    lngHourP(200, &x, true, &t);
+    float a = 1.0;
+    float* b = &a;
+    for (int i = 0; i < 100; i++)
+    {
+        t_fpu(&a);
+        sunRAsc(&a,&a);
+        std::cout << a<<"\n";
+        a = a + 1;
+    }
 
-    test(a,b);
     //int y = test(x);
 }
