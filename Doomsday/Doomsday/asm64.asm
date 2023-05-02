@@ -10,6 +10,7 @@
 noventa real4 90.0				;TODO: buscar todos los 90 y reemplazarlos con esta const
 tresSesenta real4 360.0
 quince real4 15.0
+menosUno real4 -1.0
 
 smeanA real4 0.9856
 smeanB real4 3.289
@@ -39,29 +40,23 @@ tmpPtr3 qword 0
 time real4 0.0
 lngHour real4 0.0
 RA real4 0.0
-locHour real4 0.0
-TimeBig real4 0.0
+locHour real4 0.0		;H
+TimeBig real4 0.0		;T
 UT real4 0.0
 
+lat real4 0.0
+longitud real4 0.0
 .code
 ALIGN 16
 
-t_fpu proc
-	mov tmpPtr,rcx
-	finit
+LoadLongLat proc
 	movss xmm0, dword ptr[rcx]
-	movss tmps,xmm0
-	fld tmps
-	fld1
-	fpatan
-	fst tmps
-	movss xmm0,tmps
-	movss dword ptr[rcx],xmm0
-	mov rax,080d
-	mov tmpTest,rax
+	movss lat,xmm0
+	movss xmm0, dword ptr[rdx]
+	movss longitud,xmm0
 
 	ret
-t_fpu endp
+LoadLongLat endp
 		;Optimizar todo estos n para conseguir el dia
 nf1 proc
 	mov rax,rcx			;mover dato a rax
@@ -196,15 +191,14 @@ suntLong endp
 
 sunRAsc proc								; DONE: tests pasados
 	mov tmpPtr,rcx
-	mov tmpPtr2,rdx
 	movss xmm0,dword ptr [rcx]
 	movss tmps,xmm0
 	finit
 	fld tmps
-	fsin
+	fptan	
 	fld sRA
 	fmul
-	fld1		;cargamos la constante 1 porque para hacer atan, se hacer stan(st(1)/st(0))
+	fld1		;cargamos la constante 1 porque para hacer atan, se hacer atan(st(1)/st(0))
 	fpatan
 	comparaciones:
 	fld tresSesenta
@@ -259,8 +253,6 @@ sunRAsc proc								; DONE: tests pasados
 	movss xmm1,quince
 	divss xmm0,xmm1
 	movss RA,xmm0
-	mov rax,tmpPtr2
-	movss dword ptr [rax],xmm0
 	;movss xmm0,tmpsB
 	;movss dword ptr [rcx],xmm0
 	ret
@@ -268,7 +260,7 @@ sunRAsc endp
 
 sunsDeclination proc					;TEST: 
 	mov tmpPtr,rcx					;remover?
-	mov tmpPtr2,rdx
+	mov tmpPtr2,rdx					;esto es de latitud, pero al final lo movimos a una variable, TODO: remover,porque como esta si o svoolamos esto, la cosa se quiebra
 	mov tmpPtr3,r8
 	movss xmm0,dword ptr [rcx]		;movemos a ammo el contenido de ecx
 	movss tmps,xmm0					;movemos a tmps el cpntenido de xmm0, estos movimientos porque no podemos mover directamente a tmps
@@ -280,7 +272,7 @@ sunsDeclination proc					;TEST:
 	fmul
 	fst	tmps
 	movss xmm0,tmps
-	mov rax,tmpPtr3
+	mov rax,tmpPtr3			;guardamos sindec
 	movss dword ptr [rax],xmm0
 	;z=tmps=sinDec
 	;cosDec = cos(asin(sinDec))
@@ -303,16 +295,98 @@ sunsDeclination proc					;TEST:
 		fld1
 		fpatan	
 		fcos	
-		fst tmpsB	; tmpsB-''cosDec
-	mov rcx,tmpPtr2
+		fstp tmpsB	; tmpsB-''cosDec.
+	;cosH = (cos(zenith) - (sinDec * sin(latitude))) / (cosDec * cos(latitude))
+		;(cosDec * cos(latitude))
+		finit	;no es necesario pero esta por si acaso
+		fld lat
+		fcos	
+		fld tmpsB	;cargamos cosdec que esta en tmpsB
+		fmul
+		fstp tmpsB	;(cosDec * cos(latitude))_'' tmpsB
+		;(cos(zenith) - (sinDec * sin(latitude)))
+		;(sinDec * sin(latitude))
+			fld lat
+			fsin	
+			fld	tmps
+			fmul
+			fst tmps
+			;cos(zenith)
+			fld	noventa
+			fcos	;cos(zenith)
+			fsub	;st(0)(cos(zenith)) - st(1)((sinDec * sin(latitude)))
+			fld tmpsB
+			fdiv		;sto(1)/st(0)
+	fst tmps
+	fld1
+	fcomp						;valor debe de estar en [-1,1]
+	fstsw  ax
+	; TODO comparaciones de que este en el rango
+    and    eax, 0100011100000000B ;take only condition code flags
+    cmp    eax, 0000000000000000B ;is st0 > source ?
+    je     _greater
+    cmp    eax, 0000000100000000B ;is st0 men source ?
+    je     _less
+    cmp    eax, 0100000000000000B ;is st0 = source ?
+    je     _greater	
 
-
-
-	ret
+	_less:
+		xor rax,rax
+		mov al,01h
+		ret	;regresamos bool true, porque no se alza el sol
+	_greater:
+	fld menosUno
+	fcomp
+	fstsw  ax
+	; TODO comparaciones de que este en el rango
+    and    eax, 0100011100000000B ;take only condition code flags
+    cmp    eax, 0000000000000000B ;is st0 may source ?pp		p
+	je     _less
+	xor rax,rax
+	ret	;regresamos bool false, porque si se alza el sol
 sunsDeclination endp
 
-sunLhourAng proc
-	
+sunLhourAng proc		;7B  a 10	entra bool de sunrise o sunset,	y dir var para guardar 
+	mov tmpPtr,rdx
+	finit	
+	fld tmps
+	fld tmps
+	fmul
+	fld1
+	fsub st(1),st(0)
+	fsqrt	
+	fld tmps
+	fld1
+	fadd	
+	fdiv
+	cmp rcx,01d
+	jnz sunRisedes
+	jmp cont
+	sunRisedes:
+	fld tresSesenta
+	fsub st(0),st(1)
+	cont:
+	fld quince
+	fdiv
+	fld RA
+	fld lmtA
+	fld time
+	fmul
+	fld lmtB
+	fadd
+	fsub
+	fadd	
+	fst tmps
+	fld lngHour
+	fsub
+	fld longitud
+	fld quince
+	fdiv
+	fadd
+	fstp tmps
+	mov rcx,tmpPtr
+	movss xmm0,tmps
+	movss dword ptr [rcx],xmm0
 	ret
 sunLhourAng endp
 

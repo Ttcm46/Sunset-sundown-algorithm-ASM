@@ -2,7 +2,7 @@
 //
 
 #include <iostream>
-extern "C" void t_fpu(float* x);
+extern "C" void LoadLongLat(float* lat,float* longitude);
 extern "C" int nf1(int m);
 extern "C" int nf2(int m);
 extern "C" int nf3(int* y);
@@ -20,38 +20,43 @@ int calcularDiaDelAno(int dia, int mes, int anho) {
 extern "C" void lngHourP(int n, float* longi, bool sunSet, float* time);
 //calcula la anomalia promedio del sol
 extern "C" void anomPromSol(float* entrada, float* salida);
-extern "C" void suntLong(float* M,float * salid);
-extern "C" void sunRAsc(float* m,float *RA);
+extern "C" void suntLong(float* M);
+extern "C" void sunRAsc(float* m);
+extern "C" bool sunsDeclination(float* l, float* a, float* b);
+extern "C" void sunLhourAng(bool sunSet, float* dirRet);
 
 
 
 
-
-void sunsetSunrise(int dia, int mes, int anho, float lat, float longi, int zenith, bool sunSet) {
+float sunsetSunrise(int dia, int mes, int anho, float lat, float longi, bool sunSet) {
+    LoadLongLat(&lat, &longi);
     int n = calcularDiaDelAno(dia, mes, anho);
+    float timeVar,M,L= 0.0;
+    float tmp,tmp2; //ya ni me acuerdo para que ran estas pero se cae sin estas
+    lngHourP(n, &longi, sunSet, &timeVar);
+    anomPromSol(&timeVar, &M);
+    suntLong(&M);
+    L = M;
+    sunRAsc(&L);
+    if (!sunsDeclination(&L, &tmp, &tmp2)) {
+        sunLhourAng(sunSet, &M);
+        return M;
+    }
+    else
+    {
+        return -1.0;
+    }
+
+
 
 
 }
 
-void test(float lngHour, float N) {
-    float t =sin(N);
-    float z= 0.9856;
-    float a = 3.289;
-}
     
 
 int main()
 {
     std::cout << "Hello World!\n";
-    float a = 1.0;
-    float* b = &a;
-    for (int i = 0; i < 100; i++)
-    {
-        t_fpu(&a);
-        sunRAsc(&a,&a);
-        std::cout << a<<"\n";
-        a = a + 1;
-    }
+    //llamar sunsetSunrise(...) para algoritmo
 
-    //int y = test(x);
 }
