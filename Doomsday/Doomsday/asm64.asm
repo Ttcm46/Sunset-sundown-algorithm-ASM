@@ -150,10 +150,18 @@ suntLong proc			;L = M + (1.916 * sin(M)) + (0.020 * sin(2 * M)) + 282.634				TO
 	mov tmpPtr,rcx		;salvamos direccion de puntero de M
 	mov rcx,tmpPtr		;movemos a ecx la direccion
 	;proceso de (1.916 * sin(M))
-	movss xmm0,dword ptr [rcx]		;movemos a ammo el contenido de ecx
+	movss xmm0,dword ptr [rcx]		;movemos a xmmo el contenido de ecx
 	movss tmps,xmm0					;movemos a tmps el cpntenido de xmm0, estos movimientos porque no podemos mover directamente a tmps
 	finit							;inicializacion/purga de fpu para que este en 0's
 	fld tmps						;push a stack de fpu de tmps
+	fldpi	
+	fmul	
+	fld tresSesenta
+	fld1
+	fld1
+	fadd	
+	fdiv
+	fdiv	
 	fsin							;sin
 	fst	tmps						;guardado de resultado en tmps
 	movss xmm0,tmps					;movemos el resultado a xmm0
@@ -168,6 +176,14 @@ suntLong proc			;L = M + (1.916 * sin(M)) + (0.020 * sin(2 * M)) + 282.634				TO
 	mulss xmm0,xmm1					;xmm0 * xmm1		M*2
 	movss tmps,xmm0					;tmps -'' xmm0		valor se guada en tmps				CHECK: redundante/paso extra innecesario?
 	fld tmps						;carga de valor a fpu
+	fldpi	
+	fmul	
+	fld tresSesenta
+	fld1
+	fld1
+	fadd	
+	fdiv
+	fdiv	
 	fsin							;sin de valor
 	fst	tmps						;guardamos valor a tmps
 	movss xmm0,stLongB				;xmm0 -'' stLongB
@@ -258,7 +274,7 @@ sunRAsc proc								; DONE: tests pasados
 	ret
 sunRAsc endp
 
-sunsDeclination proc					;TEST: 
+sunsDeclination proc					;TEST:			
 	mov tmpPtr,rcx					;remover?
 	mov tmpPtr2,rdx					;esto es de latitud, pero al final lo movimos a una variable, TODO: remover,porque como esta si o svoolamos esto, la cosa se quiebra
 	mov tmpPtr3,r8
@@ -267,7 +283,18 @@ sunsDeclination proc					;TEST:
 	finit							;inicializacion/purga de fpu para que este en 0's
 	;sinDec = 0.39782 * sin(L)
 	fld	tmps
+	fldpi	
+	fmul	
+	fld tresSesenta
+	fld1
+	fld1
+	fadd	
+	fdiv
+	fdiv	
 	fsin
+	fst tmpsB
+	movss	xmm0,tmpsB
+	movss dword ptr [r8],xmm0
 	fld sDA
 	fmul
 	fst	tmps
@@ -283,23 +310,39 @@ sunsDeclination proc					;TEST:
 		;1-z
 		fld tmps
 		fld1
-		fsub
+		fsub st(0),st(1)
 		;(1-z)*(1+z)
 		fmul	
 		;(sqrt((1-z)*(1+z))
-		fsqrt
+		fsqrt					;err aqui, sacando raiz de un num negaativo
 		;z / (sqrt((1-z)*(1+z))
 		fld tmps
 		fdiv	
 		;atan( z / (sqrt((1-z)*(1+z)) )
 		fld1
 		fpatan	
+		fldpi	
+	fmul	
+	fld tresSesenta
+	fld1
+	fld1
+	fadd	
+	fdiv
+	fdiv
 		fcos	
 		fstp tmpsB	; tmpsB-''cosDec.
 	;cosH = (cos(zenith) - (sinDec * sin(latitude))) / (cosDec * cos(latitude))
 		;(cosDec * cos(latitude))
 		finit	;no es necesario pero esta por si acaso
 		fld lat
+		fldpi	
+	fmul	
+	fld tresSesenta
+	fld1
+	fld1
+	fadd	
+	fdiv
+	fdiv
 		fcos	
 		fld tmpsB	;cargamos cosdec que esta en tmpsB
 		fmul
@@ -307,17 +350,36 @@ sunsDeclination proc					;TEST:
 		;(cos(zenith) - (sinDec * sin(latitude)))
 		;(sinDec * sin(latitude))
 			fld lat
+				fldpi	
+	fmul	
+	fld tresSesenta
+	fld1
+	fld1
+	fadd	
+	fdiv
+	fdiv	
+	fsin
 			fsin	
 			fld	tmps
 			fmul
 			fst tmps
 			;cos(zenith)
 			fld	noventa
+			fldpi	
+	fmul	
+	fld tresSesenta
+	fld1
+	fld1
+	fadd	
+	fdiv
+	fdiv
 			fcos	;cos(zenith)
 			fsub	;st(0)(cos(zenith)) - st(1)((sinDec * sin(latitude)))
 			fld tmpsB
 			fdiv		;sto(1)/st(0)
 	fst tmps
+	movss xmm0,tmps
+	movss dword ptr [rdx],xmm0	
 	fld1
 	fcomp						;valor debe de estar en [-1,1]
 	fstsw  ax
@@ -390,24 +452,24 @@ sunLhourAng proc		;7B  a 10	entra bool de sunrise o sunset,	y dir var para guard
 	ret
 sunLhourAng endp
 
-hToHour proc
-	
-	ret
-hToHour endp
-
-localMeanT proc
-
-	ret
-localMeanT endp
-
-utcAdj proc
-
-	ret
-utcAdj endp
-
-locUtcAdj proc
-
-	ret
-locUtcAdj endp
+testFPU proc
+	movss xmm0,dword ptr [rcx]		;movemos a ammo el contenido de ecx
+	movss tmpsB,xmm0	
+	finit
+	fld tmpsB
+	fldpi	
+	fmul	
+	fld tresSesenta
+	fld1
+	fld1
+	fadd	
+	fdiv
+	fdiv	
+	fsin
+	fstp	tmpsB
+	movss xmm0,tmpsB
+	movss dword ptr [rcx],xmm0
+	ret	
+testFPU endp
 
 end	
