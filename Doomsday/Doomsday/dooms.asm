@@ -1,3 +1,4 @@
+;extern "C" float sunRS(float lat, float lon, float zen, int dia, int mes, int anho,bool sunset);
 .data	
 ;constantes
 
@@ -29,17 +30,24 @@ L real4	0.0
 RA real4 0.0
 LQ dword 0		;enteros de 32 bits
 RQ dword 0
-
+sinDec real4 0.0
+cosDec real4 0.0
+cosH real4 0.0
+H real4 0.0
+Time real4 0.0
+UT real4 0.0
 
 lat real4 0.0
 longitud real4 0.0
 zenith real4 0.0
 
 sunset db 0
+sunRises db 0
 
 ;tmp
 tmpD dword 0
 tmpQ qword 0
+tmpR4 real4 0.0
 
 ;codigo
 .code
@@ -234,44 +242,44 @@ sunRightAsc proc
 	fld toDegs
 	fmul
 
-	compsSun:			;rev que 360 es la may
+	compsRight:			;rev que 360 es la may
 	fld tresSesenta
 	fcom                             ;compare st0 with st1
     fstsw  ax                        ;ax := fpu status register
 	fstp st(0)
     and    eax, 0100011100000000B ;take only condition code flags
     cmp    eax, 0000000000000000B ;is st0 > source ?
-    je     sunsg			;360 es mayor
+    je     rightgR			;360 es mayor
     cmp    eax, 0000000100000000B ;is st0 < source ?
-    je     subTresS		;360 es menor
+    je     subTresSR		;360 es menor
     cmp    eax, 0100000000000000B ;is st0 = source ?
-    je     sunsg
+    je     rightgR
 
-	sunsg:			;rev que 0 es el menor
+	rightgR:			;rev que 0 es el menor
 	fldz
 	fcom                             ;compare st0 with st1
     fstsw  ax                        ;ax := fpu status register
 	fstp st(0)
     and    eax, 0100011100000000B ;take only condition code flags
     cmp    eax, 0000000000000000B ;is st0 > source ?
-    je     addTresS
+    je     addTresSR
     cmp    eax, 0000000100000000B ;is st0 < source ?
-    je     doneSuns
+    je     doneSunsR
     cmp    eax, 0100000000000000B ;is st0 = source ?
-    je     doneSuns
+    je     doneSunsR
     ;jmp    example_11_error      ;else, st0 or source are undefined
 
-	addTresS:
+	addTresSR:
 	fld tresSesenta
 	fadd	
-	jmp compsSun
+	jmp compsRight
 
-	subTresS:
+	subTresSR:
 	fld tresSesenta
 	fsub 	
-	jmp compsSun
+	jmp compsRight
 
-	doneSuns:
+	doneSunsR:
 	fstp RA
 	ret
 sunRightAsc endp
@@ -290,6 +298,7 @@ sunRightAscDos proc
 		;bts	tmpD,13		;setear bit 13 a 1
 		;mov tmpD,eax		;regresar para restaurar reg
 		;ldmxcsr	tmpD		;restaurar reg mxcsr
+		;roundps	
 		;cvtss2si	eax,xmm0
 	mov rbx,090d
 	mul	bl
@@ -318,8 +327,218 @@ sunRightAscDos proc
 	ret
 sunRightAscDos endp
 
+sunsDeclin proc
+	;sinDec = 0.39782 * sin(L)
+	finit	
+	fld L
+	fld toRads	
+	fmul	
+	fsin	
+	fld sDA
+	fmul	
+	fst cosDec		;guardamos esto aqui porque lo vamos a ocupar en rads para cosdedc, y aqui ya lo tenemos, nos ahorramos 2 insts
+	fld toDegs
+	fmul
+	fstp sinDec
+		;cos(arsin(x)) = \sqrt{ 1 - x^2}
+	fld cosDec	;este es el pow
+	fld cosDec
+	fmul
+	fld1		;1-x&^2
+	fsub st(0),st(1)
+	fsqrt	;\sqrt{ 1 - x^2}
+	fld toDegs
+	fmul
+	fstp cosDec
 
-;TODO Hacer 6
+	ret
+sunsDeclin endp
+
+sunsLocalHour proc
+	finit
+	;(cosDec * cos(latitude))
+	fld lat
+	fld toRads
+	fmul	
+	fcos
+	fld toDegs
+	fld cosDec
+	fmul
+	fmul	
+	;(sinDec * sin(latitude)))
+	fld lat
+	fld toRads
+	fmul
+	fsin	
+	fld sinDec
+	fld toDegs 
+	fmul
+	fmul
+	;cos(zenith)
+	fld zenith
+	fld toRads
+	fmul
+	fcos	
+	fld toDegs
+	fmul	
+	fsub st(0),st(1)	;(cos(zenith) - (sinDec * sin(latitude)))
+	fstp st(1)		;pop valor st(1)
+	fdiv st(0),st(1);(cos(zenith) - (sinDec * sin(latitude))) / (cosDec * cos(latitude))
+
+	fst cosH	;	cosH = (cos(zenith) - (sinDec * sin(latitude))) / (cosDec * cos(latitude))
+	movss xmm0,cosH
+	
+
+	compsLoc:			;rev que 1 es la may
+	fld1
+	fcom                             ;compare st0 with st1
+    fstsw  ax                        ;ax := fpu status register
+	fstp st(0)
+    and    eax, 0100011100000000B ;take only condition code flags
+    cmp    eax, 0000000000000000B ;is st0 > source ?
+    je     rightgRig			;360 es mayor
+    cmp    eax, 0000000100000000B ;is st0 < source ?
+    je     subRig		;360 es menor
+    cmp    eax, 0100000000000000B ;is st0 = source ?
+    je     rightgRig
+
+	rightgRig:			;rev que -1 es el menor
+	fld1
+	fchs	
+	fcom                             ;compare st0 with st1
+    fstsw  ax                        ;ax := fpu status register
+	fstp st(0)
+    and    eax, 0100011100000000B ;take only condition code flags
+    cmp    eax, 0000000000000000B ;is st0 > source ?
+    je     addRig
+    cmp    eax, 0000000100000000B ;is st0 < source ?
+    je     doneSunsRig
+    cmp    eax, 0100000000000000B ;is st0 = source ?
+    je     doneSunsRig
+    ;jmp    example_11_error      ;else, st0 or source are undefined
+
+	addRig:
+	mov al,00d
+	mov sunRises,al
+	jmp continue
+	subRig:
+	mov al,00d
+	mov sunRises,al		
+	jmp continue
+	doneSunsRig:
+	mov al,01d	
+
+	continue:	
+	finit		;compute acos=2atan(\frac{\sqrt{1-x^2}}{1+x})
+	fld cosH
+	fld toRads
+	fmul
+	fld1
+	fmul st(0),st(1) ;duplicar cosH
+	fmul			;;cosH^2		x^2
+	fld1
+	fsub	st(0),st(1)			;1-x^2
+	fsqrt						;\sqrt{1-x^2}
+
+	fld cosH
+	fld toRads
+	fmul	
+	fld1
+	fadd		;1+x
+	fdiv st(0),st(1)			;\frac{\sqrt{1-x^2}}{1+x}
+	fld1
+	fpatan	
+	mov al,sunset
+	cmp al,01h
+	jz sunRSNS
+
+	fld tresSesenta
+	fsub	st(0),st(1)
+
+	sunRSNS:
+
+	fld toDegs
+	fmul	
+	fst H
+	fld quince
+	fdiv st(1),st(0)
+	fstp st(0)
+	fstp H
+	ret
+sunsLocalHour endp
+	
+localMeantimeRiseSet proc
+	finit
+	fld H
+	fld RA
+	fld t
+	fld lmtA
+	fmul
+	fld lmtB
+	fsub
+	fsub
+	fadd	
+	fstp Time
+	ret
+localMeantimeRiseSet endp
+
+UTCAdjust proc
+	finit
+	fld Time
+	fld lngHour
+	fsub	
+	;ajuste a rango de 0-24
+	compsUTC:			;rev que 360 es la may
+	fld veinticuatro
+	fcom                             ;compare st0 with st1
+    fstsw  ax                        ;ax := fpu status register
+	fstp st(0)
+    and    eax, 0100011100000000B ;take only condition code flags
+    cmp    eax, 0000000000000000B ;is st0 > source ?
+    je     rightUTC			;360 es mayor
+    cmp    eax, 0000000100000000B ;is st0 < source ?
+    je     subUTC		;360 es menor
+    cmp    eax, 0100000000000000B ;is st0 = source ?
+    je     rightUTC
+
+	rightUTC:			;rev que 0 es el menor
+	fldz
+	fcom                             ;compare st0 with st1
+    fstsw  ax                        ;ax := fpu status register
+	fstp st(0)
+    and    eax, 0100011100000000B ;take only condition code flags
+    cmp    eax, 0000000000000000B ;is st0 > source ?
+    je     addUTC
+    cmp    eax, 0000000100000000B ;is st0 < source ?
+    je     doneUTC
+    cmp    eax, 0100000000000000B ;is st0 = source ?
+    je     doneUTC
+    ;jmp    example_11_error      ;else, st0 or source are undefined
+
+	addUTC:
+	fld veinticuatro
+	fadd	
+	jmp compsUTC
+
+	subUTC:
+	fld veinticuatro
+	fsub 	
+	jmp compsUTC
+	doneUTC:
+	fstp UT
+	ret
+UTCAdjust endp
+
+UTToLocalTime proc
+	movss xmm0,UT
+	movss xmm1,longitud
+	movss xmm2,quince
+	divss xmm1,xmm2
+	roundss	xmm1,xmm1,00B				;https://www.felixcloutier.com/x86/roundpd#fig-4-24 revisar tabla pra modos de redondeo
+	addss xmm0,xmm1
+	ret	
+UTToLocalTime endp
+
 sunRS proc
 ;carga de datos necesarios
 	;mov eax,[ebp+8]
@@ -340,16 +559,19 @@ sunRS proc
 	mov rcx	,r9
 
 
-
 	;calc dia
 	call	calculateDay
+	;algoritmo
 	call lngHourCal
 	call sunManom	
 	call sunsTrueLong		
 	call sunRightAsc
 	call sunRightAscDos
-
-
+	call sunsDeclin
+	call sunsLocalHour
+	call localMeantimeRiseSet		
+	call UTCAdjust
+	call UTToLocalTime
 	pop rbp ;restaurar rbp
 	ret	
 sunRS endp
