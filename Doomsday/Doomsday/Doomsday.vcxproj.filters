@@ -23,5 +23,11 @@
     <MASM Include="asm64.asm">
       <Filter>Source Files</Filter>
     </MASM>
+    <MASM Include="..\..\..\..\..\..\OneDrive\Documentos\ITCR\Sem 3\Arky\Doomsday\Doomsday\dooms.asm">
+      <Filter>Source Files</Filter>
+    </MASM>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
 </Project>

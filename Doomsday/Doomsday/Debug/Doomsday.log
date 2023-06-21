@@ -1,8 +1,50 @@
-﻿  Assembling funciones.asm...
-funciones.asm(1): error A2013: .MODEL must precede this directive
-funciones.asm(3): error A2034: must be in segment block : Adder
-funciones.asm(4): error A2034: must be in segment block
-funciones.asm(5): error A2034: must be in segment block
-funciones.asm(7): error A2034: must be in segment block
-funciones.asm(8): fatal error A1010: unmatched block nesting : Adder
-C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\MSBuild\Microsoft\VC\v160\BuildCustomizations\masm.targets(70,5): error MSB3721: The command "ml.exe /c /nologo /Zi /Fo"Debug\funciones.obj" /W3 /errorReport:prompt  /Tafunciones.asm" exited with code 1.
+﻿  Assembling ..\..\..\..\..\..\OneDrive\Documentos\ITCR\Sem 3\Arky\Doomsday\Doomsday\dooms.asm...
+..\..\..\..\..\..\OneDrive\Documentos\ITCR\Sem 3\Arky\Doomsday\Doomsday\dooms.asm(2): error A2013: .MODEL must precede this directive
+..\..\..\..\..\..\OneDrive\Documentos\ITCR\Sem 3\Arky\Doomsday\Doomsday\dooms.asm(5): error A2034: must be in segment block
+..\..\..\..\..\..\OneDrive\Documentos\ITCR\Sem 3\Arky\Doomsday\Doomsday\dooms.asm(6): error A2034: must be in segment block
+..\..\..\..\..\..\OneDrive\Documentos\ITCR\Sem 3\Arky\Doomsday\Doomsday\dooms.asm(7): error A2034: must be in segment block
+..\..\..\..\..\..\OneDrive\Documentos\ITCR\Sem 3\Arky\Doomsday\Doomsday\dooms.asm(8): error A2034: must be in segment block
+..\..\..\..\..\..\OneDrive\Documentos\ITCR\Sem 3\Arky\Doomsday\Doomsday\dooms.asm(9): error A2034: must be in segment block
+..\..\..\..\..\..\OneDrive\Documentos\ITCR\Sem 3\Arky\Doomsday\Doomsday\dooms.asm(10): error A2034: must be in segment block
+..\..\..\..\..\..\OneDrive\Documentos\ITCR\Sem 3\Arky\Doomsday\Doomsday\dooms.asm(12): error A2034: must be in segment block
+..\..\..\..\..\..\OneDrive\Documentos\ITCR\Sem 3\Arky\Doomsday\Doomsday\dooms.asm(13): error A2034: must be in segment block
+..\..\..\..\..\..\OneDrive\Documentos\ITCR\Sem 3\Arky\Doomsday\Doomsday\dooms.asm(14): error A2034: must be in segment block
+..\..\..\..\..\..\OneDrive\Documentos\ITCR\Sem 3\Arky\Doomsday\Doomsday\dooms.asm(15): error A2034: must be in segment block
+..\..\..\..\..\..\OneDrive\Documentos\ITCR\Sem 3\Arky\Doomsday\Doomsday\dooms.asm(16): error A2034: must be in segment block
+..\..\..\..\..\..\OneDrive\Documentos\ITCR\Sem 3\Arky\Doomsday\Doomsday\dooms.asm(17): error A2034: must be in segment block
+..\..\..\..\..\..\OneDrive\Documentos\ITCR\Sem 3\Arky\Doomsday\Doomsday\dooms.asm(18): error A2034: must be in segment block
+..\..\..\..\..\..\OneDrive\Documentos\ITCR\Sem 3\Arky\Doomsday\Doomsday\dooms.asm(19): error A2034: must be in segment block
+..\..\..\..\..\..\OneDrive\Documentos\ITCR\Sem 3\Arky\Doomsday\Doomsday\dooms.asm(20): error A2034: must be in segment block
+..\..\..\..\..\..\OneDrive\Documentos\ITCR\Sem 3\Arky\Doomsday\Doomsday\dooms.asm(21): error A2034: must be in segment block
+..\..\..\..\..\..\OneDrive\Documentos\ITCR\Sem 3\Arky\Doomsday\Doomsday\dooms.asm(22): error A2034: must be in segment block
+..\..\..\..\..\..\OneDrive\Documentos\ITCR\Sem 3\Arky\Doomsday\Doomsday\dooms.asm(25): error A2034: must be in segment block
+..\..\..\..\..\..\OneDrive\Documentos\ITCR\Sem 3\Arky\Doomsday\Doomsday\dooms.asm(26): error A2034: must be in segment block
+..\..\..\..\..\..\OneDrive\Documentos\ITCR\Sem 3\Arky\Doomsday\Doomsday\dooms.asm(27): error A2034: must be in segment block
+..\..\..\..\..\..\OneDrive\Documentos\ITCR\Sem 3\Arky\Doomsday\Doomsday\dooms.asm(28): error A2034: must be in segment block
+..\..\..\..\..\..\OneDrive\Documentos\ITCR\Sem 3\Arky\Doomsday\Doomsday\dooms.asm(29): error A2034: must be in segment block
+..\..\..\..\..\..\OneDrive\Documentos\ITCR\Sem 3\Arky\Doomsday\Doomsday\dooms.asm(30): error A2034: must be in segment block
+..\..\..\..\..\..\OneDrive\Documentos\ITCR\Sem 3\Arky\Doomsday\Doomsday\dooms.asm(31): error A2034: must be in segment block
+..\..\..\..\..\..\OneDrive\Documentos\ITCR\Sem 3\Arky\Doomsday\Doomsday\dooms.asm(32): error A2034: must be in segment block
+..\..\..\..\..\..\OneDrive\Documentos\ITCR\Sem 3\Arky\Doomsday\Doomsday\dooms.asm(33): error A2034: must be in segment block
+..\..\..\..\..\..\OneDrive\Documentos\ITCR\Sem 3\Arky\Doomsday\Doomsday\dooms.asm(34): error A2034: must be in segment block
+..\..\..\..\..\..\OneDrive\Documentos\ITCR\Sem 3\Arky\Doomsday\Doomsday\dooms.asm(35): error A2034: must be in segment block
+..\..\..\..\..\..\OneDrive\Documentos\ITCR\Sem 3\Arky\Doomsday\Doomsday\dooms.asm(36): error A2034: must be in segment block
+..\..\..\..\..\..\OneDrive\Documentos\ITCR\Sem 3\Arky\Doomsday\Doomsday\dooms.asm(37): error A2034: must be in segment block
+..\..\..\..\..\..\OneDrive\Documentos\ITCR\Sem 3\Arky\Doomsday\Doomsday\dooms.asm(38): error A2034: must be in segment block
+..\..\..\..\..\..\OneDrive\Documentos\ITCR\Sem 3\Arky\Doomsday\Doomsday\dooms.asm(40): error A2034: must be in segment block
+..\..\..\..\..\..\OneDrive\Documentos\ITCR\Sem 3\Arky\Doomsday\Doomsday\dooms.asm(41): error A2034: must be in segment block
+..\..\..\..\..\..\OneDrive\Documentos\ITCR\Sem 3\Arky\Doomsday\Doomsday\dooms.asm(42): error A2034: must be in segment block
+..\..\..\..\..\..\OneDrive\Documentos\ITCR\Sem 3\Arky\Doomsday\Doomsday\dooms.asm(44): error A2034: must be in segment block
+..\..\..\..\..\..\OneDrive\Documentos\ITCR\Sem 3\Arky\Doomsday\Doomsday\dooms.asm(45): error A2034: must be in segment block
+..\..\..\..\..\..\OneDrive\Documentos\ITCR\Sem 3\Arky\Doomsday\Doomsday\dooms.asm(48): error A2034: must be in segment block
+..\..\..\..\..\..\OneDrive\Documentos\ITCR\Sem 3\Arky\Doomsday\Doomsday\dooms.asm(49): error A2034: must be in segment block
+..\..\..\..\..\..\OneDrive\Documentos\ITCR\Sem 3\Arky\Doomsday\Doomsday\dooms.asm(50): error A2034: must be in segment block
+..\..\..\..\..\..\OneDrive\Documentos\ITCR\Sem 3\Arky\Doomsday\Doomsday\dooms.asm(53): error A2013: .MODEL must precede this directive
+..\..\..\..\..\..\OneDrive\Documentos\ITCR\Sem 3\Arky\Doomsday\Doomsday\dooms.asm(54): error A2034: must be in segment block
+..\..\..\..\..\..\OneDrive\Documentos\ITCR\Sem 3\Arky\Doomsday\Doomsday\dooms.asm(56): error A2034: must be in segment block : LoadArea
+..\..\..\..\..\..\OneDrive\Documentos\ITCR\Sem 3\Arky\Doomsday\Doomsday\dooms.asm(57): error A2034: must be in segment block
+..\..\..\..\..\..\OneDrive\Documentos\ITCR\Sem 3\Arky\Doomsday\Doomsday\dooms.asm(58): error A2034: must be in segment block
+..\..\..\..\..\..\OneDrive\Documentos\ITCR\Sem 3\Arky\Doomsday\Doomsday\dooms.asm(59): error A2034: must be in segment block
+..\..\..\..\..\..\OneDrive\Documentos\ITCR\Sem 3\Arky\Doomsday\Doomsday\dooms.asm(61): error A2034: must be in segment block
+..\..\..\..\..\..\OneDrive\Documentos\ITCR\Sem 3\Arky\Doomsday\Doomsday\dooms.asm(62): fatal error A1010: unmatched block nesting : LoadArea
+C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\MSBuild\Microsoft\VC\v160\BuildCustomizations\masm.targets(70,5): error MSB3721: The command "ml.exe /c /nologo /Zi /Fo"Debug\dooms.obj" /W3 /errorReport:prompt  /Ta"..\..\..\..\..\..\OneDrive\Documentos\ITCR\Sem 3\Arky\Doomsday\Doomsday\dooms.asm"" exited with code 1.
