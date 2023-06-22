@@ -141,7 +141,7 @@ int main()
     }
     int mousex = 0;
     int mousey = 0;
-    char formateado[] = { 0,0,':',0,0,0 };
+    char formateado[] = { 0,0,':',0,0,32, 'A','M',0};
     bool sunset = true;
     al_draw_bitmap(background, 0, 0, 0);
     al_flip_display();
@@ -162,6 +162,9 @@ int main()
             formateado[0] = h % 10 + 0x30;
             formateado[4] = m % 10 + 0x30; m = m / 10;
             formateado[3] = m % 10 + 0x30;
+
+            (sunset) ? (formateado[6] = 'P') : (formateado[6] = 'A');
+            (sunset) ? (formateado[7] = 'M') : (formateado[7] = 'M');
 
 
             al_show_native_message_box(display, "",  + (sunset) ? (" Hora de Puesta") : ("Hora de Salida"), formateado, "Acepto", NULL);
